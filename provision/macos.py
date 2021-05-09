@@ -1,0 +1,41 @@
+def os_provision(common, build):
+    configuration = common.os_to_configuration['macos']
+    common.info(f'Installing macOS with Python {common.versions_to_string(configuration.versions())}')
+    common.vagrant_destroy(build)
+    common.vagrant_add(configuration.box)
+    with open(build / 'Vagrantfile', 'w') as vagrantfile:
+        vagrantfile.write('\n'.join((
+            '$provision = <<-\'SCRIPT\'',
+            'brew update',
+            'brew install pyenv',
+            *('\n'.join((
+                'pyenv install {}'.format(name),
+                'pyenv local {}'.format(name),
+                'pyenv exec python3 -m pip install --upgrade pip',
+            )) for name in configuration.names()),
+            'SCRIPT',
+            'Vagrant.configure("2") do |config|',
+            '    config.vm.box = "{}"'.format(configuration.box),
+            '    config.vm.synced_folder ".", "/vagrant", disabled: true',
+            '    config.vm.provision "shell", inline: $provision, privileged: false',
+            '    config.vm.provider "virtualbox" do |v|',
+            '        v.name = "{}"'.format(common.box_name('macos')),
+            '        v.check_guest_additions = false',
+            '    end',
+            '    config.ssh.insert_key = false',
+            '    config.trigger.after :"VagrantPlugins::ProviderVirtualBox::Action::Import", type: :action do |t|',
+            '        t.ruby do |env, machine|',
+            '            FileUtils.cp(',
+            '                machine.box.directory.join("include").join("macOS.nvram").to_s,',
+            '                machine.provider.driver.execute_command(["showvminfo", machine.id, "--machinereadable"]).',
+            '                    split(/\n/).',
+            '                    map {|line| line.partition(/=/)}.',
+            '                    select {|partition| partition.first == "BIOS NVRAM File"}.',
+            '                    last.',
+            '                    last[1..-2]',
+            '            )',
+            '        end',
+            '    end',
+            'end',
+        )))
+    common.vagrant_up(build, experimental='typed_triggers')
