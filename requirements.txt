@@ -1,1 +1,2 @@
+packaging >= 20.0
 toml >= 0.10

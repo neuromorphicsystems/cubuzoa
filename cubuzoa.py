@@ -43,7 +43,7 @@ if args.command == 'build':
     with open(args.project / 'pyproject.toml') as pyproject_file:
         pyproject = toml.load(pyproject_file)
     backend = pyproject['build-system']['build-backend']
-    backends = set(child.name for child in (dirname / 'backends').iterdir() if child.is_dir())
+    backends = set(child.name for child in (dirname / 'backend').iterdir() if child.is_dir())
     if not backend in backends:
         raise Exception(f'unsupported backend \'{backend}\' (supported backends: {backends})')
     if args.wheels is None:
@@ -53,8 +53,8 @@ if args.command == 'build':
     (args.wheels).mkdir(exist_ok=True)
     args.os = re.compile(args.os, re.IGNORECASE)
     versions = packaging.specifiers.SpecifierSet(args.version)
-    sys.path.insert(0, str(dirname / 'backends' / backend))
-    for os_name in (child.stem for child in (dirname / 'backends' / backend).iterdir() if child.is_file()):
+    sys.path.insert(0, str(dirname / 'backend' / backend))
+    for os_name in (child.stem for child in (dirname / 'backend' / backend).iterdir() if child.is_file()):
         if args.os.match(os_name) is not None:
             os_module = importlib.import_module(os_name)
             if hasattr(os_module, 'os_build'):
