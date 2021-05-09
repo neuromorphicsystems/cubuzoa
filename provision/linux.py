@@ -5,7 +5,7 @@ def os_provision(common, build):
     common.vagrant_add(configuration.box)
     with open(build / 'Dockerfile', 'w') as dockerfile:
         dockerfile.write('\n'.join((
-            'FROM quay.io/pypa/manylinux2010_x86_64',
+            'FROM quay.io/pypa/manylinux2014_x86_64',
             'ENV USER root',
             'ENV PATH {}:$PATH'.format(':'.join(configuration.names())),
             'RUN mkdir /project',

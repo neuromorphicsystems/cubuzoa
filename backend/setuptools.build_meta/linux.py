@@ -10,6 +10,10 @@ def os_build(common, versions, project, wheels, build):
                 common.os_to_configuration['linux'].version_to_name[version],
                 common.pip_wheel('/unaudited-wheels'),
             ),
-            'for wheel_file in /unaudited-wheels/*.whl; do auditwheel repair $wheel_file -w /wheels; done',
+            ';'.join((
+                'for wheel in /unaudited-wheels/*.whl',
+                '    do auditwheel repair --plat manylinux2014_x86_64 --strip --onlyplat $wheel -w /wheels',
+                'done'
+            ))
         )))
         common.rsync(build, host_path=wheels, guest_path='wheels/', host_to_guest=False)
