@@ -72,6 +72,12 @@ def vagrant_add(box):
     else:
         subprocess.check_call(('vagrant', 'box', 'add', box, '--provider', 'virtualbox'))
 
+def vagrant_remove(box):
+    boxes_string = subprocess.run(('vagrant', 'box', 'list'), check=True, capture_output=True, encoding='utf-8')
+    boxes = set(box.split(' ')[0] for box in boxes_string.stdout[:-1].split('\n'))
+    if box in boxes:
+        subprocess.check_call(('vagrant', 'box', 'remove', box, '--all'))
+
 def vagrant_up(build, experimental=None):
     if experimental is not None:
         env = dict(os.environ)

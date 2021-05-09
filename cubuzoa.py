@@ -6,6 +6,7 @@ import packaging.specifiers
 import pathlib
 import re
 import shutil
+import subprocess
 import sys
 import toml
 dirname = pathlib.Path(__file__).resolve().parent
@@ -21,7 +22,9 @@ build_parser.add_argument('project', help='path to the project directory')
 build_parser.add_argument('--wheels', default=None, help='path to the output wheels directory, defaults to [project]/wheels')
 build_parser.add_argument('--os', default='.*', help='operating system regex, case insensitive')
 build_parser.add_argument('--version', default='>=3.7,<=3.9', help='version specifiers in PEP 440 format')
-unprovision_parser = subparsers.add_parser('unprovision', help='stop all the Vagrant machines created by Cubuzoa')
+unprovision_parser = subparsers.add_parser('unprovision', help='destroy the Vagrant machines created by Cubuzoa')
+unprovision_parser.add_argument('--prune', action='store_true', help='delete downloaded Vagrant boxes')
+unprovision_parser.add_argument('--clean', action='store_true', help='delete any VirtualBox whose name starts with cubuzoa-')
 args = parser.parse_args()
 
 if args.command == 'provision':
@@ -72,3 +75,12 @@ if args.command == 'unprovision':
         for directory in sorted(child for child in (dirname / 'build').iterdir() if child.is_dir()):
             common.vagrant_destroy(directory)
     shutil.rmtree(dirname / 'build', ignore_errors=True)
+    if args.prune:
+        for configuration in common.os_to_configuration.values():
+            common.vagrant_remove(configuration.box)
+    if args.clean:
+        machine_pattern = re.compile('^"cubuzoa-.+"\s{([\-a-z0-9]+)}\s*$')
+        for line in subprocess.run(('VBoxManage', 'list', 'vms'), check=True, capture_output=True, encoding='utf-8').stdout.split('\n'):
+            match = machine_pattern.match(line)
+            if match is not None:
+                subprocess.check_call(('VBoxManage', 'unregistervm', match.group(1), '--delete'))
