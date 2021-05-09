@@ -9,3 +9,5 @@ sudo apt install virtualbox-ext-pack
 2.9G	cubuzoa-linux-2021-05-09T23:40:21
 22G	cubuzoa-macos-2021-05-09T23:53:58
 22G	cubuzoa-windows-2021-05-10T00:15:19
+
+Manylinux 2014

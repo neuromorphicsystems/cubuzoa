@@ -12,7 +12,7 @@ def os_build(common, versions, project, wheels, build):
             ),
             ';'.join((
                 'for wheel in /unaudited-wheels/*.whl',
-                '    do auditwheel repair --plat manylinux2014_x86_64 --strip --onlyplat $wheel -w /wheels',
+                '    do auditwheel repair --plat manylinux2014_x86_64 --strip --only-plat $wheel -w /wheels',
                 'done'
             ))
         )))
