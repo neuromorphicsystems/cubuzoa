@@ -112,7 +112,7 @@ def rsync(build, host_path, guest_path, host_to_guest):
         subprocess.check_call(('rsync', '-az', '-e', ssh, f'vagrant@127.0.0.1:{guest_path}{os.sep}', f'{host_path}'))
 
 def linux_docker_run(build, command):
-    vagrant_run(build, f'sudo docker run --rm -v ~/project:/project -v ~/wheels:/wheels manylinux {command}')
+    vagrant_run(build, f'sudo /usr/bin/docker run --rm -v ~/project:/project -v ~/wheels:/wheels manylinux {command}')
 
 def pip_wheel(target):
     return f'-m pip wheel . -w {target} --no-deps --use-feature=in-tree-build'

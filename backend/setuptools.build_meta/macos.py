@@ -6,7 +6,7 @@ def os_build(common, versions, project, wheels, build):
         common.info(f'Building for Python {version} on macOS')
         common.vagrant_run(build, ' && '.join((
             'cd project',
-            'pyenv local {}'.format(common.os_to_configuration['macos'].version_to_name[version]),
-            'pyenv exec python3 {}'.format(common.pip_wheel('../wheels')),
+            '/usr/local/bin/pyenv local {}'.format(common.os_to_configuration['macos'].version_to_name[version]),
+            '/usr/local/bin/pyenv exec python3 {}'.format(common.pip_wheel('../wheels')),
         )))
         common.rsync(build, host_path=wheels, guest_path='wheels/', host_to_guest=False)

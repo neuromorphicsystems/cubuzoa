@@ -1,6 +1,6 @@
 def os_build(common, versions, project, wheels, build):
     common.info(f'Copying project files to Windows')
-    common.vagrant_run(build, 'rmdir /s /q project 2>nul & wheels rmdir /s /q wheels 2>nul &', windows_guest=True)
+    common.vagrant_run(build, 'rmdir /s /q project 2>nul & rmdir /s /q wheels 2>nul &')
     common.rsync(build, host_path=project, guest_path='project', host_to_guest=True)
     for version in versions:
         common.info(f'Building for Python {version} on Windows')
