@@ -28,7 +28,7 @@ if args.command == 'provision':
     (dirname / 'build').mkdir(exist_ok=True)
     args.os = re.compile(args.os, re.IGNORECASE)
     sys.path.insert(0, str(dirname / 'provision'))
-    for os_name in (child.stem for child in (dirname / 'provision').iterdir() if child.is_file()):
+    for os_name in sorted(child.stem for child in (dirname / 'provision').iterdir() if child.is_file()):
         if args.os.match(os_name) is not None:
             os_module = importlib.import_module(os_name)
             if hasattr(os_module, 'os_provision') and (not (dirname / 'build' / os_name).exists() or args.force):
@@ -54,7 +54,7 @@ if args.command == 'build':
     args.os = re.compile(args.os, re.IGNORECASE)
     versions = packaging.specifiers.SpecifierSet(args.version)
     sys.path.insert(0, str(dirname / 'backend' / backend))
-    for os_name in (child.stem for child in (dirname / 'backend' / backend).iterdir() if child.is_file()):
+    for os_name in sorted(child.stem for child in (dirname / 'backend' / backend).iterdir() if child.is_file()):
         if args.os.match(os_name) is not None:
             os_module = importlib.import_module(os_name)
             if hasattr(os_module, 'os_build'):
@@ -68,6 +68,6 @@ if args.command == 'build':
 
 if args.command == 'unprovision':
     if (dirname / 'build').is_dir():
-        for directory in (child for child in (dirname / 'build').iterdir() if child.is_dir()):
+        for directory in sorted(child for child in (dirname / 'build').iterdir() if child.is_dir()):
             common.vagrant_destroy(directory)
     shutil.rmtree(dirname / 'build', ignore_errors=True)
