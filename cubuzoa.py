@@ -25,6 +25,7 @@ unprovision_parser = subparsers.add_parser('unprovision', help='stop all the Vag
 args = parser.parse_args()
 
 if args.command == 'provision':
+    (dirname / 'vagrant_private_key').chmod(0o600)
     (dirname / 'build').mkdir(exist_ok=True)
     args.os = re.compile(args.os, re.IGNORECASE)
     sys.path.insert(0, str(dirname / 'provision'))
