@@ -15,16 +15,17 @@ parser = argparse.ArgumentParser(description='Generate wheels for Linux, macOS a
 subparsers = parser.add_subparsers(dest='command')
 provision_parser = subparsers.add_parser('provision', help='download and install the Virtual Machines')
 provision_parser.add_argument('--os', default='.*', help='operating system regex, case insensitive')
-provision_parser.add_argument('--force', action='store_true', help='install VMs vn if they already exist')
+provision_parser.add_argument('--force', action='store_true', help='install VMs even if they already exist')
 
 build_parser = subparsers.add_parser('build', help='build a Python project')
 build_parser.add_argument('project', help='path to the project directory')
 build_parser.add_argument('--wheels', default=None, help='path to the output wheels directory, defaults to [project]/wheels')
 build_parser.add_argument('--os', default='.*', help='operating system regex, case insensitive')
 build_parser.add_argument('--version', default='>=3.7,<=3.9', help='version specifiers in PEP 440 format')
+build_parser.add_argument('--skip-sdist', action='store_true', help='do not create a source distribution')
 unprovision_parser = subparsers.add_parser('unprovision', help='destroy the Vagrant machines created by Cubuzoa')
 unprovision_parser.add_argument('--prune', action='store_true', help='delete downloaded Vagrant boxes')
-unprovision_parser.add_argument('--clean', action='store_true', help='delete any VirtualBox whose name starts with cubuzoa-')
+unprovision_parser.add_argument('--clean', action='store_true', help='delete any VirtualBox machine whose name starts with cubuzoa-')
 args = parser.parse_args()
 
 if args.command == 'provision':
@@ -40,20 +41,22 @@ if args.command == 'provision':
                 os_module.os_provision(common, build=dirname / 'build' / os_name)
 
 if args.command == 'build':
-    if not (dirname / 'build').is_dir():
-        print(f'run \033[1mpython3 cubuzoa.py provision\033[0m first')
-        sys.exit(1)
     args.project = pathlib.Path(args.project).resolve()
+    if args.wheels is None:
+        args.wheels = args.project / 'wheels'
+    else:
+        args.wheels = pathlib.Path(args.wheels).resolve()
+    if not args.skip_sdist:
+        subprocess.check_call((sys.executable, 'setup.py', 'sdist', '--dist-dir', args.wheels), cwd=args.project)
+    if not (dirname / 'build').is_dir():
+        common.print_bold(f'run python3 cubuzoa.py provision first')
+        sys.exit(1)
     with open(args.project / 'pyproject.toml') as pyproject_file:
         pyproject = toml.load(pyproject_file)
     backend = pyproject['build-system']['build-backend']
     backends = set(child.name for child in (dirname / 'backend').iterdir() if child.is_dir())
     if not backend in backends:
         raise Exception(f'unsupported backend \'{backend}\' (supported backends: {backends})')
-    if args.wheels is None:
-        args.wheels = args.project / 'wheels'
-    else:
-        args.wheels = pathlib.Path(args.wheels).resolve()
     (args.wheels).mkdir(exist_ok=True)
     args.os = re.compile(args.os, re.IGNORECASE)
     versions = packaging.specifiers.SpecifierSet(args.version)
