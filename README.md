@@ -1,6 +1,6 @@
 ![banner](banner.png)
 
-Cubuzoa is a script that builds Python wheels for Linux, macOS and Windows on a single host operating system by spawning VirtualBox machines.
+Cubuzoa is a script that builds Python wheels for Linux, macOS, and Windows on a single host operating system by spawning VirtualBox machines.
 
 Tested on the following host operating systems:
 - Ubuntu 20.04
