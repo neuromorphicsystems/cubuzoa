@@ -14,7 +14,20 @@ A full installation requires about `75 GB` of free disk space for the following 
 - macOS VirtualBox machine (`22 GB`)
 - Window VirtualBox machine (`22 GB`)
 
-Partial installations are supported, reducing disk usage accordingly. Cubuzoa provides an uninstallation script to delete all used resources.
+# Python versions
+
+Cubuzoa compiles wheels for Python 3.7, Python 3.8 and Python 3.9.
+
+Linux builds rely on Manylinux 2014 x86-64 (https://github.com/pypa/manylinux).
+
+Windows builds create both 32-bts and 64-bits versions.
+
+# Backends
+
+The build backend is automatically determined by parsing `pyproject.toml` in the target project directory. The following build backends are supported:
+
+- `"setuptools.build_meta"` (https://setuptools.readthedocs.io/en/latest/build_meta.html)
+- (WIP) `"maturin"` (https://github.com/PyO3/maturin)
 
 # Dependencies
 
@@ -39,6 +52,11 @@ Cubuzoa requires VirtualBox with its Extension Pack (https://www.virtualbox.org/
   choco install virtualbox --params "/ExtensionPack"
   choco install vagrant
   ```
+
+Python dependencies can be installed with
+```sh
+pip3 install -r requirements.txt
+```
 
 # Usage
 
