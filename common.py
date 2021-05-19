@@ -13,14 +13,18 @@ class Configuration:
         return self.version_to_name.values()
     def versions(self):
         return self.version_to_name.keys()
+    def default_version(self):
+        return next(iter(self.version_to_name.keys()))
+    def default_name(self):
+        return next(iter(self.version_to_name.values()))
 
 os_to_configuration = {
     'linux': Configuration(
         'ubuntu/focal64',
         {
-            '3.9': '/opt/python/cp39-cp39/bin/python',
-            '3.8': '/opt/python/cp38-cp38/bin/python',
-            '3.7': '/opt/python/cp37-cp37m/bin/python',
+            '3.9': '/opt/python/cp39-cp39/bin',
+            '3.8': '/opt/python/cp38-cp38/bin',
+            '3.7': '/opt/python/cp37-cp37m/bin',
         }),
     'macos': Configuration(
         'amarcireau/macos',
@@ -118,7 +122,15 @@ def rsync(build, host_path, guest_path, host_to_guest):
         subprocess.check_call(('rsync', '-az', '-e', ssh, f'vagrant@127.0.0.1:{guest_path}{os.sep}', f'{host_path}'))
 
 def linux_docker_run(build, command):
-    vagrant_run(build, f'sudo /usr/bin/docker run --rm -v ~/project:/project -v ~/wheels:/wheels manylinux /bin/bash -c \'{command}\'')
+    vagrant_run(build, ' '.join((
+        'sudo /usr/bin/docker run',
+        '--rm',
+        '-e BASH_ENV=/root/.profile',
+        '-v ~/project:/project',
+        '-v ~/wheels:/wheels',
+        'manylinux',
+        f'/bin/bash -c \'{command}\'',
+    )))
 
 def pip_wheel(target):
     return f'-m pip wheel . -w {target} --no-deps --use-feature=in-tree-build'

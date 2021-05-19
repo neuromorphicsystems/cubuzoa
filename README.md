@@ -20,14 +20,14 @@ Cubuzoa compiles wheels for Python 3.7, Python 3.8 and Python 3.9.
 
 Linux builds rely on Manylinux 2014 x86-64 (https://github.com/pypa/manylinux).
 
-Windows builds create both 32-bts and 64-bits versions.
+Windows builds create both 32-bits and 64-bits versions.
 
 # Backends
 
 The build backend is automatically determined by parsing `pyproject.toml` in the target project directory. The following build backends are supported:
 
 - `"setuptools.build_meta"` (https://setuptools.readthedocs.io/en/latest/build_meta.html)
-- (WIP) `"maturin"` (https://github.com/PyO3/maturin)
+- `"maturin"` (https://github.com/PyO3/maturin)
 
 # Dependencies
 
@@ -111,6 +111,7 @@ Optional arguments:
 - `--prune` delete downloaded Vagrant boxes
 - `--clean` delete any VirtualBox machine whose name starts with `cubuzoa-`
 
-# Example Python projects using Cubuzoa
+# Example Python projects that use Cubuzoa
 
-- https://github.com/neuromorphicsystems/event_stream
+- https://github.com/neuromorphicsystems/event_stream (setuptools)
+- https://github.com/neuromorphicsystems/aedat (maturin)

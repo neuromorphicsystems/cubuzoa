@@ -6,7 +6,7 @@ def os_build(common, versions, project, wheels, build):
         common.info(f'Building for Python {version} on Linux')
         common.linux_docker_run(build, ' && '.join((
             'mkdir /unaudited-wheels',
-            '{} {}'.format(
+            '{}/python {}'.format(
                 common.os_to_configuration['linux'].version_to_name[version],
                 common.pip_wheel('/unaudited-wheels'),
             ),

@@ -7,9 +7,11 @@ def os_provision(common, build):
         dockerfile.write('\n'.join((
             'FROM quay.io/pypa/manylinux2014_x86_64',
             'ENV USER root',
-            'ENV PATH {}:$PATH'.format(':'.join(configuration.names())),
             'RUN mkdir /project',
             'RUN mkdir /wheels',
+            'RUN curl --proto \'=https\' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y',
+            'RUN {}/pip3 install cffi'.format(configuration.default_name()),
+            'RUN {}/pip3 install maturin'.format(configuration.default_name()),
             'WORKDIR /project',
         )))
     with open(build / 'Vagrantfile', 'w') as vagrantfile:

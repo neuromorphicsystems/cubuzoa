@@ -22,7 +22,6 @@ build_parser.add_argument('project', help='path to the project directory')
 build_parser.add_argument('--wheels', default=None, help='path to the output wheels directory, defaults to [project]/wheels')
 build_parser.add_argument('--os', default='.*', help='operating system regex, case insensitive')
 build_parser.add_argument('--version', default='>=3.7,<=3.9', help='version specifiers in PEP 440 format')
-build_parser.add_argument('--skip-sdist', action='store_true', help='do not create a source distribution')
 unprovision_parser = subparsers.add_parser('unprovision', help='destroy the Vagrant machines created by Cubuzoa')
 unprovision_parser.add_argument('--prune', action='store_true', help='delete downloaded Vagrant boxes')
 unprovision_parser.add_argument('--clean', action='store_true', help='delete any VirtualBox machine whose name starts with cubuzoa-')
@@ -46,8 +45,6 @@ if args.command == 'build':
         args.wheels = args.project / 'wheels'
     else:
         args.wheels = pathlib.Path(args.wheels).resolve()
-    if not args.skip_sdist:
-        subprocess.check_call((sys.executable, 'setup.py', 'sdist', '--dist-dir', args.wheels), cwd=args.project)
     if not (dirname / 'build').is_dir():
         common.print_bold(f'run python3 cubuzoa.py provision first')
         sys.exit(1)
