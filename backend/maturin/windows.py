@@ -15,6 +15,7 @@ def os_build(common, versions, project, wheels, build, post):
             common.vagrant_run(build, ' && '.join((
                 'echo off',
                 'rmdir /s /q new-wheels 2>nul & rmdir /s /q new-wheels 2>nul & mkdir new-wheels',
+                'cd project',
                 ' '.join((
                     maturin,
                     'build',
