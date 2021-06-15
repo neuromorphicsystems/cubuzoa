@@ -1,6 +1,6 @@
 def os_provision(common, build):
     configuration = common.os_to_configuration['macos']
-    common.info(f'Installing macOS with Python {common.versions_to_string(configuration.versions())}')
+    common.print_info(f'Installing macOS with Python {common.versions_to_string(configuration.versions())}')
     common.vagrant_destroy(build)
     common.vagrant_add(configuration.box)
     with open(build / 'Vagrantfile', 'w') as vagrantfile:

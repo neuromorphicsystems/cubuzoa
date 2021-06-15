@@ -9,7 +9,6 @@ def os_build(common, versions, project, wheels, build, post):
             (f'{version} (32 bits)', '"C:\\Program Files (x86)\\Python{}-32\\python.exe"'.format(version.replace('.', ''))),
         ):
             common.print_info(f'Building for Python {version_string} on Windows')
-            common.vagrant_run(build, 'rmdir /s /q new-wheels 2>nul & rmdir /s /q new-wheels 2>nul & mkdir new-wheels')
             common.vagrant_run(build, ' && '.join((
                 'echo off',
                 'rmdir /s /q new-wheels 2>nul & rmdir /s /q new-wheels 2>nul & mkdir new-wheels',
