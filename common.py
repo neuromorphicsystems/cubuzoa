@@ -3,6 +3,7 @@ import os
 import pathlib
 import shutil
 import subprocess
+import tempfile
 dirname = pathlib.Path(__file__).resolve().parent
 
 class Configuration:
@@ -42,14 +43,19 @@ os_to_configuration = {
         }),
 }
 
-def print_bold(message):
+def format_bold(message):
     if os.getenv('ANSI_COLORS_DISABLED') is None:
-        print(f'\033[1m{message}\033[0m')
-    else:
-        print(message)
+        return f'\033[1m{message}\033[0m'
+    return message
 
-def info(message):
-    print_bold(f'📦 {message}')
+def print_bold(message):
+    print(format_bold(message))
+
+def format_info(message):
+    return f'📦 {format_bold(message)}'
+
+def print_info(message):
+    print(format_info(message))
 
 def versions_to_string(versions):
     if len(versions) == 1:
@@ -129,8 +135,26 @@ def linux_docker_run(build, command):
         '-v ~/project:/project',
         '-v ~/wheels:/wheels',
         'manylinux',
-        f'/bin/bash -c \'{command}\'',
+        f'/bin/bash -c $\'{command}\'',
     )))
+
+def rsync_windows_utilities(build):
+    with tempfile.TemporaryDirectory() as temporary_directory:
+        with open(pathlib.Path(temporary_directory) / 'echo.py', 'wb') as echo_file:
+            base = format_info('{}')
+            echo_file.write('\n'.join((
+                'import sys',
+                'if len(sys.argv) > 1:',
+                '    sys.stdout.reconfigure(encoding=\'utf-8\')',
+                f'    print(\'{base}\'.format(\' \'.join(sys.argv[1:])))',
+            )).encode('utf-8'))
+        rsync(build, host_path=temporary_directory, guest_path='utilities', host_to_guest=True)
 
 def pip_wheel(target):
     return f'-m pip wheel . -w {target} --no-deps --use-feature=in-tree-build'
+
+def pip_install(wheel):
+    return f'-m pip install --force-reinstall {wheel}'
+
+def pip_uninstall(wheel):
+    return f'-m pip uninstall -y {wheel}'

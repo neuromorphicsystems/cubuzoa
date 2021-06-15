@@ -19,6 +19,7 @@ provision_parser.add_argument('--force', action='store_true', help='install VMs 
 
 build_parser = subparsers.add_parser('build', help='build a Python project')
 build_parser.add_argument('project', help='path to the project directory')
+build_parser.add_argument('--post', default=None, help='path to a Python script to run post-build, must be in the project directort')
 build_parser.add_argument('--wheels', default=None, help='path to the output wheels directory, defaults to [project]/wheels')
 build_parser.add_argument('--os', default='.*', help='operating system regex, case insensitive')
 build_parser.add_argument('--version', default='>=3.7,<=3.9', help='version specifiers in PEP 440 format')
@@ -41,6 +42,13 @@ if args.command == 'provision':
 
 if args.command == 'build':
     args.project = pathlib.Path(args.project).resolve()
+    if args.post is not None:
+        args.post = pathlib.Path(args.post).resolve()
+        try:
+            args.post = args.post.relative_to(args.project)
+        except ValueError:
+            common.print_bold(f'the post script \'{args.post}\' must be in the project directory \'{args.project}\'')
+            sys.exit(1)
     if args.wheels is None:
         args.wheels = args.project / 'wheels'
     else:
@@ -68,7 +76,8 @@ if args.command == 'build':
                     versions=tuple(version for version in common.os_to_configuration[os_name].versions() if versions.contains(version)),
                     project=args.project,
                     wheels=args.wheels,
-                    build=dirname / 'build' / os_name)
+                    build=dirname / 'build' / os_name,
+                    post=args.post)
 
 if args.command == 'unprovision':
     if (dirname / 'build').is_dir():
