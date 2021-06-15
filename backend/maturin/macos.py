@@ -14,7 +14,7 @@ def os_build(common, versions, project, wheels, build, post):
                     common.os_to_configuration['macos'].default_name()),
                 'build',
                 '--interpreter',
-                f'/Users/vagrant/.pyenv/versions/{python_version}/bin/python3'
+                f'/Users/vagrant/.pyenv/versions/{python_version}/bin/python3',
                 '--release',
                 '--strip',
                 '--no-sdist',
