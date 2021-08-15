@@ -16,7 +16,7 @@ A full installation requires about `75 GB` of free disk space for the following 
 
 # Python versions
 
-Cubuzoa compiles wheels for Python 3.7, Python 3.8 and Python 3.9.
+Cubuzoa compiles wheels and frozen packages for Python 3.7, Python 3.8 and Python 3.9.
 
 Linux builds rely on Manylinux 2014 x86-64 (https://github.com/pypa/manylinux).
 
@@ -28,6 +28,7 @@ The build backend is automatically determined by parsing `pyproject.toml` in the
 
 - `"setuptools.build_meta"` (https://setuptools.readthedocs.io/en/latest/build_meta.html)
 - `"maturin"` (https://github.com/PyO3/maturin)
+- `"pyinstaller"` (https://www.pyinstaller.org)
 
 # Dependencies
 
@@ -53,29 +54,31 @@ Cubuzoa requires VirtualBox with its Extension Pack (https://www.virtualbox.org/
   choco install vagrant
   ```
 
-Python dependencies can be installed with
-```sh
-pip3 install -r requirements.txt
-```
-
 # Usage
 
-1. Download and start the VirtualBox machines
+1. Clone this repository and insall Python dependencies
+  ```
+  git clone https://github.com/neuromorphicsystems/cubuzoa.git
+  cd cubuzoa
+  pip3 install -r requirements.txt
+  ```
+
+2. Download and start the VirtualBox machines
   ```sh
   python3 cubuzoa.py provision
   ```
 
-2. Build wheels for a Python project
+3. Build wheels or frozen packages for a Python project
   ```sh
   python3 cubuzoa.py build /path/to/python/project
   ```
 
-3. Stop the machines and delete all downloaded resources
+4. Stop the machines and delete all downloaded resources
   ```sh
   python3 cubuzoa.py unprovision --prune
   ```
 
-Step 2 can be repeated any number of times with different projects.
+Step 3 can be repeated any number of times with different projects.
 
 # Documentation
 

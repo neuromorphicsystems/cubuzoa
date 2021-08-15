@@ -12,7 +12,8 @@ import toml
 dirname = pathlib.Path(__file__).resolve().parent
 
 parser = argparse.ArgumentParser(
-    description="Generate wheels for Linux, macOS and Windows", formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    description="Generate wheels or frozen packages for Linux, macOS and Windows",
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter,
 )
 subparsers = parser.add_subparsers(dest="command")
 provision_parser = subparsers.add_parser(
@@ -24,14 +25,20 @@ provision_parser.add_argument("--os", default=".*", help="operating system regex
 provision_parser.add_argument("--force", action="store_true", help="install VMs even if they already exist")
 
 build_parser = subparsers.add_parser(
-    "build", help="build a Python project", formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    "build",
+    help="build a Python project",
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter,
 )
 build_parser.add_argument("project", help="path to the project directory")
 build_parser.add_argument(
-    "--post", default=None, help="path to a Python script to run post-build, must be in the project directort"
+    "--post",
+    default=None,
+    help="path to a Python script to run post-build, must be in the project directort",
 )
 build_parser.add_argument(
-    "--wheels", default=None, help="path to the output wheels directory, defaults to [project]/wheels"
+    "--output",
+    default=None,
+    help="path to the output directory, defaults to [project]/wheels for wheels and [project]/build for frozen packages",
 )
 build_parser.add_argument("--os", default=".*", help="operating system regex, case insensitive")
 build_parser.add_argument("--version", default=">=3.7,<=3.9", help="version specifiers in PEP 440 format")
@@ -42,7 +49,9 @@ unprovision_parser = subparsers.add_parser(
 )
 unprovision_parser.add_argument("--prune", action="store_true", help="delete downloaded Vagrant boxes")
 unprovision_parser.add_argument(
-    "--clean", action="store_true", help="delete any VirtualBox machine whose name starts with cubuzoa-"
+    "--clean",
+    action="store_true",
+    help="delete any VirtualBox machine whose name starts with cubuzoa-",
 )
 args = parser.parse_args()
 
@@ -65,14 +74,10 @@ if args.command == "build":
         try:
             args.post = args.post.relative_to(args.project)
         except ValueError:
-            common.print_bold(f"the post script '{args.post}' must be in the project directory '{args.project}'")
+            common.print_error(f"the post script '{args.post}' must be in the project directory '{args.project}'")
             sys.exit(1)
-    if args.wheels is None:
-        args.wheels = args.project / "wheels"
-    else:
-        args.wheels = pathlib.Path(args.wheels).resolve()
     if not (dirname / "build").is_dir():
-        common.print_bold(f"run python3 cubuzoa.py provision first")
+        common.print_error(f"run python3 cubuzoa.py provision first")
         sys.exit(1)
     with open(args.project / "pyproject.toml") as pyproject_file:
         pyproject = toml.load(pyproject_file)
@@ -80,7 +85,14 @@ if args.command == "build":
     backends = set(child.name for child in (dirname / "backend").iterdir() if child.is_dir())
     if not backend in backends:
         raise Exception(f"unsupported backend '{backend}' (supported backends: {backends})")
-    (args.wheels).mkdir(exist_ok=True)
+    if args.output is None:
+        if backend == "pyinstaller":
+            args.output = args.project / "build"
+        else:
+            args.output = args.project / "wheels"
+    else:
+        args.output = pathlib.Path(args.output).resolve()
+    args.output.mkdir(exist_ok=True)
     args.os = re.compile(args.os, re.IGNORECASE)
     versions = packaging.specifiers.SpecifierSet(args.version)
     sys.path.insert(0, str(dirname / "backend" / backend))
@@ -97,9 +109,10 @@ if args.command == "build":
                         if versions.contains(version)
                     ),
                     project=args.project,
-                    wheels=args.wheels,
+                    output=args.output,
                     build=dirname / "build" / os_name,
                     post=args.post,
+                    pyproject=pyproject,
                 )
 
 if args.command == "unprovision":
@@ -113,7 +126,10 @@ if args.command == "unprovision":
     if args.clean:
         machine_pattern = re.compile('^"cubuzoa-.+"\s{([\-a-z0-9]+)}\s*$')
         for line in subprocess.run(
-            ("VBoxManage", "list", "vms"), check=True, capture_output=True, encoding="utf-8"
+            ("VBoxManage", "list", "vms"),
+            check=True,
+            capture_output=True,
+            encoding="utf-8",
         ).stdout.split("\n"):
             match = machine_pattern.match(line)
             if match is not None:

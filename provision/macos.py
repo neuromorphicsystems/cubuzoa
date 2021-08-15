@@ -1,4 +1,7 @@
-def os_provision(common, build):
+import pathlib
+
+
+def os_provision(common, build: pathlib.Path):
     configuration = common.os_to_configuration["macos"]
     common.print_info(f"Installing macOS with Python {common.versions_to_string(configuration.versions())}")
     common.vagrant_destroy(build)
@@ -13,7 +16,7 @@ def os_provision(common, build):
                     *(
                         "\n".join(
                             (
-                                "pyenv install {}".format(name),
+                                'PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install {}'.format(name),
                                 "pyenv local {}".format(name),
                                 "pyenv exec python3 -m pip install --upgrade pip",
                             )
@@ -24,6 +27,11 @@ def os_provision(common, build):
                     "rustup-init -y",
                     "source $HOME/.cargo/env",
                     "rustup target add aarch64-apple-darwin",
+                    "brew install upx",
+                    *(
+                        "\n".join(("pyenv local {}".format(name), "pyenv exec python3 -m pip install pyinstaller"))
+                        for name in configuration.names()
+                    ),
                     "pyenv local {}".format(configuration.default_name()),
                     "pyenv exec python3 -m pip install maturin",
                     "SCRIPT",

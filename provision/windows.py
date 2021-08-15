@@ -1,4 +1,7 @@
-def os_provision(common, build):
+import pathlib
+
+
+def os_provision(common, build: pathlib.Path):
     configuration = common.os_to_configuration["windows"]
     common.print_info(f"Installing Windows with Python {common.versions_to_string(configuration.versions())}")
     common.vagrant_destroy(build)
@@ -35,6 +38,7 @@ def os_provision(common, build):
                     ),
                     "choco install visualstudio2019buildtools -y",
                     "choco install visualstudio2019-workload-vctools -y",
+                    "choco install upx -y",
                     "Invoke-WebRequest `",
                     '    -URI "https://win.rustup.rs/x86_64" `',
                     '    -OutFile "C:\\Users\\vagrant\\rustup-init.exe" `',
@@ -43,6 +47,18 @@ def os_provision(common, build):
                     "C:\\Users\\vagrant\\.cargo\\bin\\rustup.exe target add i686-pc-windows-msvc",
                     '& "C:\\Program Files\\Python{}\\Scripts\\pip3.exe" install maturin'.format(
                         configuration.default_version().replace(".", "")
+                    ),
+                    *(
+                        '& "C:\\Program Files\\Python{}\\Scripts\\pip3.exe" install pyinstaller setuptools wheel'.format(
+                            version.replace(".", "")
+                        )
+                        for version in configuration.versions()
+                    ),
+                    *(
+                        '& "C:\\Program Files (x86)\\Python{}-32\\Scripts\\pip3.exe" install pyinstaller setuptools wheel'.format(
+                            version.replace(".", "")
+                        )
+                        for version in configuration.versions()
                     ),
                     "choco install rsync -y",
                     "SCRIPT",

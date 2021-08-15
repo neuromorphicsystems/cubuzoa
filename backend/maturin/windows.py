@@ -1,4 +1,16 @@
-def os_build(common, versions, project, wheels, build, post):
+import pathlib
+import typing
+
+
+def os_build(
+    common,
+    versions: tuple[str, ...],
+    project: pathlib.Path,
+    output: pathlib.Path,
+    build: pathlib.Path,
+    post: pathlib.Path,
+    pyproject: dict[str, typing.Any],
+):
     common.print_info(f"Copying project files to Windows")
     common.rsync_windows_utilities(build)
     common.vagrant_run(build, "rmdir /s /q project 2>nul & rmdir /s /q wheels 2>nul & mkdir wheels")
@@ -57,4 +69,4 @@ def os_build(common, versions, project, wheels, build, post):
                     )
                 ),
             )
-            common.rsync(build, host_path=wheels, guest_path="wheels", host_to_guest=False)
+            common.rsync(build, host_path=output, guest_path="wheels", host_to_guest=False)

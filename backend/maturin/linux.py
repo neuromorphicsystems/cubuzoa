@@ -1,4 +1,16 @@
-def os_build(common, versions, project, wheels, build, post):
+import pathlib
+import typing
+
+
+def os_build(
+    common,
+    versions: tuple[str, ...],
+    project: pathlib.Path,
+    output: pathlib.Path,
+    build: pathlib.Path,
+    post: pathlib.Path,
+    pyproject: dict[str, typing.Any],
+):
     common.print_info(f"Copying project files to Linux")
     common.vagrant_run(build, "sudo rm -rf project; sudo rm -rf wheels; mkdir wheels")
     common.rsync(build, host_path=project, guest_path="project", host_to_guest=True)
@@ -44,10 +56,10 @@ def os_build(common, versions, project, wheels, build, post):
                                     "done",
                                 )
                             ),
-                            "mv ../new-wheels/* /wheels/",
-                        )
+                        ),
                     ),
+                    "mv ../new-wheels/* /wheels/",
                 )
             ),
         )
-        common.rsync(build, host_path=wheels, guest_path="wheels/", host_to_guest=False)
+        common.rsync(build, host_path=output, guest_path="wheels/", host_to_guest=False)

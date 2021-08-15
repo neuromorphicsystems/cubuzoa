@@ -1,4 +1,7 @@
-def os_provision(common, build):
+import pathlib
+
+
+def os_provision(common, build: pathlib.Path):
     configuration = common.os_to_configuration["linux"]
     common.print_info(f"Installing Linux with Python versions {common.versions_to_string(configuration.versions())}")
     common.vagrant_destroy(build)
@@ -11,9 +14,15 @@ def os_provision(common, build):
                     "ENV USER root",
                     "RUN mkdir /project",
                     "RUN mkdir /wheels",
+                    "RUN mkdir /build",
                     "RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y",
                     "RUN {}/pip3 install cffi".format(configuration.default_name()),
                     "RUN {}/pip3 install maturin".format(configuration.default_name()),
+                    "RUN yum -y install upx",
+                    "RUN yum -y install centos-release-scl-rh",
+                    "RUN yum -y install rh-python38-python-devel",
+                    "RUN yum -y install rh-python38-python-pip",
+                    "RUN /bin/bash -c 'source /opt/rh/rh-python38/enable; pip3 install pyinstaller'",
                     "WORKDIR /project",
                 )
             )
