@@ -107,7 +107,7 @@ You may repeat step 3 any number of times with different projects.
 
 ## Provision
 
-`python3 cubuzoa.py provision [-h] [--os OS] [--force]`
+`python3 -m cubuzoa provision [-h] [--os OS] [--force]`
 
 Optional arguments:
 
@@ -117,7 +117,7 @@ Optional arguments:
 
 ## Build
 
-`python3 cubuzoa.py build [-h] [--wheels WHEELS] [--os OS] [--version VERSION] [--skip-sdist] project`
+`python3 -m cubuzoa build [-h] [--wheels WHEELS] [--os OS] [--version VERSION] [--skip-sdist] project`
 
 Positional arguments:
 
@@ -133,7 +133,7 @@ Optional arguments:
 
 ## Unprovision
 
-`python3 cubuzoa.py unprovision [-h] [--prune] [--clean]`
+`python3 -m cubuzoa unprovision [-h] [--prune] [--clean]`
 
 Optional arguments:
 
