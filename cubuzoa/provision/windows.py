@@ -1,9 +1,12 @@
+from cubuzoa import common
 import pathlib
 
 
-def os_provision(common, build: pathlib.Path):
+def os_provision(build: pathlib.Path):
     configuration = common.os_to_configuration["windows"]
-    common.print_info(f"Installing Windows with Python {common.versions_to_string(configuration.versions())}")
+    common.print_info(
+        f"Installing Windows with Python {common.versions_to_string(configuration.versions())}"
+    )
     common.vagrant_destroy(build)
     common.vagrant_add(configuration.box)
     with open(build / "Vagrantfile", "w") as vagrantfile:
@@ -24,16 +27,26 @@ def os_provision(common, build: pathlib.Path):
                     "}",
                     "function Upgrade-pip($directory) {",
                     '    Write-Output "Upgradigng pip for $directory"',
-                    '    & "$directory\python.exe" -m pip install --upgrade pip --no-warn-script-location',
+                    '    & "$directory\\python.exe" -m pip install --upgrade pip --no-warn-script-location',
                     "}",
-                    *("Install-Python {} '-amd64'".format(name) for name in configuration.names()),
-                    *("Install-Python {} ''".format(name) for name in configuration.names()),
                     *(
-                        "Upgrade-pip C:\\Program` Files\\Python{}".format(version.replace(".", ""))
+                        "Install-Python {} '-amd64'".format(name)
+                        for name in configuration.names()
+                    ),
+                    *(
+                        "Install-Python {} ''".format(name)
+                        for name in configuration.names()
+                    ),
+                    *(
+                        "Upgrade-pip C:\\Program` Files\\Python{}".format(
+                            version.replace(".", "")
+                        )
                         for version in configuration.versions()
                     ),
                     *(
-                        "Upgrade-pip C:\\Program` Files` `(x86`)\\Python{}-32".format(version.replace(".", ""))
+                        "Upgrade-pip C:\\Program` Files` `(x86`)\\Python{}-32".format(
+                            version.replace(".", "")
+                        )
                         for version in configuration.versions()
                     ),
                     "choco install visualstudio2019buildtools -y",

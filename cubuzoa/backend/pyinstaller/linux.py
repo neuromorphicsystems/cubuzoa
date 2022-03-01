@@ -1,14 +1,14 @@
-from os import name
+from cubuzoa import common
 import pathlib
 import typing
 
 
 def os_build(
-    common,
     versions: tuple[str, ...],
     project: pathlib.Path,
     output: pathlib.Path,
     build: pathlib.Path,
+    pre: pathlib.Path,
     post: pathlib.Path,
     pyproject: dict[str, typing.Any],
 ):
@@ -25,8 +25,20 @@ def os_build(
             build,
             " && ".join(
                 (
+                    *(
+                        ()
+                        if pre is None
+                        else (
+                            "printf \\'{}\\n\\'".format(
+                                common.format_info(f"Running {pre.as_posix()}")
+                            ),
+                            "python3 {}".format(pre.as_posix()),
+                        )
+                    ),
                     "source /opt/rh/rh-python38/enable",
-                    "python3 {}".format(common.pip_install_pyproject(pyproject, "linux")),
+                    "python3 {}".format(
+                        common.pip_install_pyproject(pyproject, "linux")
+                    ),
                     "python3 {}".format(
                         common.pyinstaller(
                             project=project,
@@ -41,7 +53,9 @@ def os_build(
                         ()
                         if post is None
                         else (
-                            "printf \\'{}\\n\\'".format(common.format_info(f"Running {post.as_posix()}")),
+                            "printf \\'{}\\n\\'".format(
+                                common.format_info(f"Running {post.as_posix()}")
+                            ),
                             "python3 {}".format(post.as_posix()),
                         )
                     ),

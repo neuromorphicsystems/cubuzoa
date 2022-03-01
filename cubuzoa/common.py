@@ -16,10 +16,10 @@ class Configuration:
         self.version_to_name = version_to_name
 
     def names(self) -> list[str]:
-        return self.version_to_name.values()
+        return list(self.version_to_name.values())
 
     def versions(self) -> list[str]:
-        return self.version_to_name.keys()
+        return list(self.version_to_name.keys())
 
     def default_version(self) -> str:
         return next(iter(self.version_to_name.keys()))
@@ -70,7 +70,7 @@ def format_info(message: str) -> str:
     return f"📦 {format_bold(message)}"
 
 
-def print_info(message) -> None:
+def print_info(message: str) -> None:
     print(format_info(message))
 
 
@@ -78,7 +78,7 @@ def format_warning(message: str) -> str:
     return f"⚠️  {format_bold(message)}"
 
 
-def print_warning(message) -> None:
+def print_warning(message: str) -> None:
     print(format_warning(message))
 
 
@@ -86,7 +86,7 @@ def format_error(message: str) -> str:
     return f"❌ {format_bold(message)}"
 
 
-def print_error(message) -> None:
+def print_error(message: str) -> None:
     print(format_error(message))
 
 
@@ -98,12 +98,18 @@ def versions_to_string(versions: list[str]) -> str:
 
 
 def box_name(os_name: str) -> str:
-    return "cubuzoa-{}-{}".format(os_name, datetime.datetime.today().isoformat().split(".")[0])
+    return "cubuzoa-{}-{}".format(
+        os_name, datetime.datetime.today().isoformat().split(".")[0]
+    )
 
 
 def vagrant_plugin(plugin: str) -> None:
-    plugins_string = subprocess.run(("vagrant", "plugin", "list"), check=True, capture_output=True, encoding="utf-8")
-    plugins = set(plugin.split(" ")[0] for plugin in plugins_string.stdout[:-1].split("\n"))
+    plugins_string = subprocess.run(
+        ("vagrant", "plugin", "list"), check=True, capture_output=True, encoding="utf-8"
+    )
+    plugins = set(
+        plugin.split(" ")[0] for plugin in plugins_string.stdout[:-1].split("\n")
+    )
     if plugin in plugins:
         subprocess.check_call(("vagrant", "plugin", "update", plugin))
     else:
@@ -111,16 +117,24 @@ def vagrant_plugin(plugin: str) -> None:
 
 
 def vagrant_add(box: str) -> None:
-    boxes_string = subprocess.run(("vagrant", "box", "list"), check=True, capture_output=True, encoding="utf-8")
+    boxes_string = subprocess.run(
+        ("vagrant", "box", "list"), check=True, capture_output=True, encoding="utf-8"
+    )
     boxes = set(box.split(" ")[0] for box in boxes_string.stdout[:-1].split("\n"))
     if box in boxes:
-        subprocess.check_call(("vagrant", "box", "update", "--box", box, "--provider", "virtualbox"))
+        subprocess.check_call(
+            ("vagrant", "box", "update", "--box", box, "--provider", "virtualbox")
+        )
     else:
-        subprocess.check_call(("vagrant", "box", "add", box, "--provider", "virtualbox"))
+        subprocess.check_call(
+            ("vagrant", "box", "add", box, "--provider", "virtualbox")
+        )
 
 
 def vagrant_remove(box: str) -> None:
-    boxes_string = subprocess.run(("vagrant", "box", "list"), check=True, capture_output=True, encoding="utf-8")
+    boxes_string = subprocess.run(
+        ("vagrant", "box", "list"), check=True, capture_output=True, encoding="utf-8"
+    )
     boxes = set(box.split(" ")[0] for box in boxes_string.stdout[:-1].split("\n"))
     if box in boxes:
         subprocess.check_call(("vagrant", "box", "remove", box, "--all"))
@@ -140,18 +154,27 @@ def vagrant_run(build: pathlib.Path, command: str) -> None:
 
 
 def vagrant_destroy(build: pathlib.Path) -> None:
-    if subprocess.run(("vagrant", "status"), check=False, capture_output=True, cwd=build).returncode == 0:
+    if (
+        subprocess.run(
+            ("vagrant", "status"), check=False, capture_output=True, cwd=build
+        ).returncode
+        == 0
+    ):
         subprocess.call(("vagrant", "destroy", "-f"), cwd=build)
     shutil.rmtree(build / ".vagrant", ignore_errors=True)
 
 
-def vboxmanage(build: pathlib.Path, command: str, *args) -> None:
-    with open(build / ".vagrant" / "machines" / "default" / "virtualbox" / "id") as uuid_file:
+def vboxmanage(build: pathlib.Path, command: str, *args: str) -> None:
+    with open(
+        build / ".vagrant" / "machines" / "default" / "virtualbox" / "id"
+    ) as uuid_file:
         uuid = uuid_file.read()
     subprocess.check_call(("VBoxManage", *command, uuid, *args), cwd=build)
 
 
-def rsync(build: pathlib.Path, host_path: pathlib.Path, guest_path: str, host_to_guest: bool) -> None:
+def rsync(
+    build: pathlib.Path, host_path: pathlib.Path, guest_path: str, host_to_guest: bool
+) -> None:
     port = int(
         subprocess.run(
             ("vagrant", "port", "--guest", "22"),
@@ -223,7 +246,7 @@ def rsync_windows_utilities(build: pathlib.Path) -> None:
             )
         rsync(
             build,
-            host_path=temporary_directory,
+            host_path=pathlib.Path(temporary_directory),
             guest_path="utilities",
             host_to_guest=True,
         )
@@ -244,51 +267,82 @@ def pip_uninstall(wheel: str) -> str:
 def pip_install_pyproject(pyproject: dict[str, typing.Any], guest: str) -> str:
     if guest == "macos":
         return pip_install(
-            " ".join('"{}"'.format(package.replace(" ", "")) for package in pyproject["build-system"]["requires"])
+            " ".join(
+                '"{}"'.format(package.replace(" ", ""))
+                for package in pyproject["build-system"]["requires"]
+            )
         )
     elif guest == "linux":
         return pip_install(
-            " ".join('"{}"'.format(package.replace(" ", "").replace("'", "\\'")) for package in pyproject["build-system"]["requires"])
+            " ".join(
+                '"{}"'.format(package.replace(" ", "").replace("'", "\\'"))
+                for package in pyproject["build-system"]["requires"]
+            )
         )
-    return pip_install(" ".join(package.replace(" ", "") for package in pyproject["build-system"]["requires"]))
+    return pip_install(
+        " ".join(
+            package.replace(" ", "")
+            for package in pyproject["build-system"]["requires"]
+        )
+    )
 
 
 def pyinstaller(
-    project: pathlib.Path, target: str, pyproject: dict[str, typing.Any], version: str, suffix: str, guest: str
+    project: pathlib.Path,
+    target: str,
+    pyproject: dict[str, typing.Any],
+    version: str,
+    suffix: str,
+    guest: str,
 ) -> str:
     extra_arguments = ""
-    if "onefile" in pyproject["tool"]["pyinstaller"] and pyproject["tool"]["pyinstaller"]["onefile"] == True:
+    if (
+        "onefile" in pyproject["tool"]["pyinstaller"]
+        and pyproject["tool"]["pyinstaller"]["onefile"] == True
+    ):
         extra_arguments += " --onefile"
-    if "windowed" in pyproject["tool"]["pyinstaller"] and pyproject["tool"]["pyinstaller"]["windowed"] == True:
+    if (
+        "windowed" in pyproject["tool"]["pyinstaller"]
+        and pyproject["tool"]["pyinstaller"]["windowed"] == True
+    ):
         extra_arguments += " --windowed"
     if "data" in pyproject["tool"]["pyinstaller"]:
         for destination, sources in pyproject["tool"]["pyinstaller"]["data"].items():
             for source in sources:
-                absolute_source_path = (project / pathlib.PurePosixPath(source)).resolve()
+                absolute_source_path = (
+                    project / pathlib.PurePosixPath(source)
+                ).resolve()
                 try:
                     source_path = absolute_source_path.relative_to(project)
                 except ValueError:
-                    print_error(f"the data file '{absolute_source_path}' must be in the project directory '{project}'")
+                    print_error(
+                        f"the data file '{absolute_source_path}' must be in the project directory '{project}'"
+                    )
                     sys.exit(1)
                 extra_arguments += " --add-data {}{}{}".format(
-                    pathlib.PureWindowsPath(source_path) if guest == "windows" else source_path.as_posix(),
+                    pathlib.PureWindowsPath(source_path)
+                    if guest == "windows"
+                    else source_path.as_posix(),
                     ";" if guest == "windows" else ":",
                     destination,
                 )
     if "exclude_modules" in pyproject["tool"]["pyinstaller"]:
         extra_arguments += " ".join(
-            f" --exclude-module {module}" for module in pyproject["tool"]["pyinstaller"]["exclude_modules"]
+            f" --exclude-module {module}"
+            for module in pyproject["tool"]["pyinstaller"]["exclude_modules"]
         )
     if guest == "macos":
         extra_arguments += " --upx-dir /usr/local/bin"
-    print("-m PyInstaller{} --distpath {} -n {}-cp{}-{} {}".format(
-        extra_arguments,
-        target,
-        pyproject["tool"]["pyinstaller"]["name"],
-        version.replace(".", ""),
-        suffix,
-        " ".join(pyproject["tool"]["pyinstaller"]["scriptnames"]),
-    ))
+    print(
+        "-m PyInstaller{} --distpath {} -n {}-cp{}-{} {}".format(
+            extra_arguments,
+            target,
+            pyproject["tool"]["pyinstaller"]["name"],
+            version.replace(".", ""),
+            suffix,
+            " ".join(pyproject["tool"]["pyinstaller"]["scriptnames"]),
+        )
+    )
     return "-m PyInstaller{} --distpath {} -n {}-cp{}-{} {}".format(
         extra_arguments,
         target,

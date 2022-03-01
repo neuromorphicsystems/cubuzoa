@@ -1,9 +1,12 @@
+from cubuzoa import common
 import pathlib
 
 
-def os_provision(common, build: pathlib.Path):
+def os_provision(build: pathlib.Path):
     configuration = common.os_to_configuration["linux"]
-    common.print_info(f"Installing Linux with Python versions {common.versions_to_string(configuration.versions())}")
+    common.print_info(
+        f"Installing Linux with Python versions {common.versions_to_string(configuration.versions())}"
+    )
     common.vagrant_destroy(build)
     common.vagrant_add(configuration.box)
     with open(build / "Dockerfile", "w") as dockerfile:

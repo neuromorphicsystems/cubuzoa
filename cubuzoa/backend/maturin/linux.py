@@ -1,13 +1,14 @@
+from cubuzoa import common
 import pathlib
 import typing
 
 
 def os_build(
-    common,
     versions: tuple[str, ...],
     project: pathlib.Path,
     output: pathlib.Path,
     build: pathlib.Path,
+    pre: pathlib.Path,
     post: pathlib.Path,
     pyproject: dict[str, typing.Any],
 ):
@@ -21,11 +22,23 @@ def os_build(
             build,
             " && ".join(
                 (
+                    *(
+                        ()
+                        if pre is None
+                        else (
+                            "printf \\'{}\\n\\'".format(
+                                common.format_info(f"Running {pre.as_posix()}")
+                            ),
+                            "{}/python {}".format(python_path, post.as_posix()),
+                        )
+                    ),
                     "mkdir ../unaudited-wheels",
                     "mkdir ../new-wheels",
                     " ".join(
                         (
-                            "{}/maturin".format(common.os_to_configuration["linux"].default_name()),
+                            "{}/maturin".format(
+                                common.os_to_configuration["linux"].default_name()
+                            ),
                             "build",
                             "--interpreter",
                             f"{python_path}/python3",
@@ -43,20 +56,26 @@ def os_build(
                             ";".join(
                                 (
                                     "for wheel in /new-wheels/*.whl",
-                                    "    do {}/python {}".format(python_path, common.pip_install("$wheel")),
+                                    "    do {}/python {}".format(
+                                        python_path, common.pip_install("$wheel")
+                                    ),
                                     "done",
                                 )
                             ),
-                            "printf \\'{}\\n\\'".format(common.format_info(f"Running {post.as_posix()}")),
+                            "printf \\'{}\\n\\'".format(
+                                common.format_info(f"Running {post.as_posix()}")
+                            ),
                             "{}/python {}".format(python_path, post.as_posix()),
                             ";".join(
                                 (
                                     "for wheel in /new-wheels/*.whl",
-                                    "    do {}/python {}".format(python_path, common.pip_uninstall("$wheel")),
+                                    "    do {}/python {}".format(
+                                        python_path, common.pip_uninstall("$wheel")
+                                    ),
                                     "done",
                                 )
                             ),
-                        ),
+                        )
                     ),
                     "mv ../new-wheels/* /wheels/",
                 )
