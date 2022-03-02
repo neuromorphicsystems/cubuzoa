@@ -253,7 +253,7 @@ def rsync_windows_utilities(build: pathlib.Path) -> None:
 
 
 def pip_wheel(target: str) -> str:
-    return f"-m pip wheel . -w {target} --no-deps --use-feature=in-tree-build"
+    return f"-m pip wheel . -w {target} --no-deps"
 
 
 def pip_install(wheel: str) -> str:
