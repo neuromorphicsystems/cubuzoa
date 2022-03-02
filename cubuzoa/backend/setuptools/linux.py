@@ -29,7 +29,7 @@ def os_build(
                             "printf \\'{}\\n\\'".format(
                                 common.format_info(f"Running {pre.as_posix()}")
                             ),
-                            "{}/python {}".format(python_path, post.as_posix()),
+                            "{}/python {}".format(python_path, pre.as_posix()),
                         )
                     ),
                     "mkdir ../unaudited-wheels",
