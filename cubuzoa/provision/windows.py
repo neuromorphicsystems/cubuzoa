@@ -9,6 +9,7 @@ def os_provision(build: pathlib.Path):
     )
     common.vagrant_destroy(build)
     common.vagrant_add(configuration.box)
+    build.mkdir(exist_ok=True)
     with open(build / "Vagrantfile", "w") as vagrantfile:
         vagrantfile.write(
             "\n".join(

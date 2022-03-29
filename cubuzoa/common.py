@@ -155,7 +155,8 @@ def vagrant_run(build: pathlib.Path, command: str) -> None:
 
 def vagrant_destroy(build: pathlib.Path) -> None:
     if (
-        subprocess.run(
+        build.exists()
+        and subprocess.run(
             ("vagrant", "status"), check=False, capture_output=True, cwd=build
         ).returncode
         == 0

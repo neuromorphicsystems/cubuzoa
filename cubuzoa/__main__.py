@@ -96,8 +96,6 @@ if __name__ == "__main__":
                 if hasattr(os_module, "os_provision") and (
                     not (pathlib.Path(args.build) / os_name).exists() or args.force
                 ):
-                    # @DEV this should  be delayed until the box is downloaded (if possible)
-                    (pathlib.Path(args.build) / os_name).mkdir(exist_ok=True)
                     os_module.os_provision(build=pathlib.Path(args.build) / os_name)  # type: ignore
 
     if args.command == "build":
