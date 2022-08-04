@@ -32,6 +32,7 @@ os_to_configuration: dict[str, Configuration] = {
     "linux": Configuration(
         "ubuntu/focal64",
         {
+            "3.10": "/opt/python/cp310-cp310/bin",
             "3.9": "/opt/python/cp39-cp39/bin",
             "3.8": "/opt/python/cp38-cp38/bin",
             "3.7": "/opt/python/cp37-cp37m/bin",
@@ -40,16 +41,18 @@ os_to_configuration: dict[str, Configuration] = {
     "macos": Configuration(
         "amarcireau/macos",
         {
-            "3.9": "3.9.4",
-            "3.8": "3.8.9",
-            "3.7": "3.7.10",
+            "3.10": "3.10.6",
+            "3.9": "3.9.13",
+            "3.8": "3.8.13",
+            "3.7": "3.7.13",
         },
     ),
     "windows": Configuration(
         "gusztavvargadr/windows-10",
         {
-            "3.9": "3.9.4",
-            "3.8": "3.8.9",
+            "3.10": "3.10.6",
+            "3.9": "3.9.13",
+            "3.8": "3.8.10",
             "3.7": "3.7.9",
         },
     ),

@@ -8,9 +8,9 @@ Cubuzoa builds Python wheels for Linux, macOS, and Windows on a single host oper
 - [Dependencies](#dependencies)
 - [Usage](#usage)
 - [Documentation](#documentation)
-  - [Provision](#provision)
-  - [Build](#build)
-  - [Unprovision](#unprovision)
+    - [Provision](#provision)
+    - [Build](#build)
+    - [Unprovision](#unprovision)
 - [Example Python projects that use Cubuzoa](#example-python-projects-that-use-cubuzoa)
 - [Contribute](#contribute)
 
@@ -33,9 +33,11 @@ A complete installation requires about `75 GB` of free disk space for the follow
 # Python versions
 
 Cubuzoa compiles wheels and frozen packages for:
-- Python 3.7
-- Python 3.8
-- Python 3.9
+
+-   Python 3.7
+-   Python 3.8
+-   Python 3.9
+-   Python 3.10
 
 Linux guest builds rely on Manylinux 2014 x86-64 (https://github.com/pypa/manylinux).
 
