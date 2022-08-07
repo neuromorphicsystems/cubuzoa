@@ -57,11 +57,23 @@ if __name__ == "__main__":
         "--os", default=".*", help="operating system regex, case insensitive"
     )
     build_parser.add_argument(
-        "--version", default=">=3.7,<=3.9", help="version specifiers in PEP 440 format"
+        "--version", default=">=3.7,<=3.10", help="version specifiers in PEP 440 format"
     )
     build_parser.add_argument(
         "--build", default=str(dirname.parent / "build"), help="build directory"
     )
+    for subcommand in ["suspend", "resume", "halt", "up"]:
+        subparser = subparsers.add_parser(
+            subcommand,
+            help=f"run Vagrant's {subcommand} command on each Virtual Machine",
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        )
+        subparser.add_argument(
+            "--os", default=".*", help="operating system regex, case insensitive"
+        )
+        subparser.add_argument(
+            "--build", default=str(dirname.parent / "build"), help="build directory"
+        )
     unprovision_parser = subparsers.add_parser(
         "unprovision",
         help="destroy the Vagrant machines created by Cubuzoa",
@@ -169,6 +181,14 @@ if __name__ == "__main__":
                         post=args.post,
                         pyproject=pyproject,
                     )
+
+    if args.command in {"suspend", "resume", "halt", "up"}:
+        args.os = re.compile(args.os, re.IGNORECASE)
+        for directory in sorted(
+            child for child in pathlib.Path(args.build).iterdir() if child.is_dir()
+        ):
+            if args.os.match(directory.name) is not None:
+                getattr(common, f"vagrant_{args.command}")(directory)
 
     if args.command == "unprovision":
         if pathlib.Path(args.build).is_dir():

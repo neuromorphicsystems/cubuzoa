@@ -44,7 +44,6 @@ def os_build(
                             f"{python_path}/python3",
                             "--release",
                             "--strip",
-                            "--no-sdist",
                             "--out",
                             "../new-wheels",
                         )

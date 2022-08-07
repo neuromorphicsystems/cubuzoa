@@ -30,7 +30,7 @@ class Configuration:
 
 os_to_configuration: dict[str, Configuration] = {
     "linux": Configuration(
-        "ubuntu/focal64",
+        "ubuntu/jammy64",
         {
             "3.10": "/opt/python/cp310-cp310/bin",
             "3.9": "/opt/python/cp39-cp39/bin",
@@ -48,7 +48,7 @@ os_to_configuration: dict[str, Configuration] = {
         },
     ),
     "windows": Configuration(
-        "gusztavvargadr/windows-10",
+        "gusztavvargadr/windows-11",
         {
             "3.10": "3.10.6",
             "3.9": "3.9.13",
@@ -94,10 +94,13 @@ def print_error(message: str) -> None:
 
 
 def versions_to_string(versions: list[str]) -> str:
+    if len(versions) == 0:
+        return ""
     if len(versions) == 1:
-        return f"{versions.__iter__().__next__()}"
-    versions_as_list = sorted(list(versions))
-    return f'{", ".join(versions_as_list[:-1])} and {versions_as_list[-1]}'
+        return f"{versions[0]}"
+    if len(versions) == 2:
+        return f"{versions[0]} and {versions[1]}"
+    return f'{", ".join(versions[:-1])}, and {versions[-1]}'
 
 
 def box_name(os_name: str) -> str:
@@ -154,6 +157,39 @@ def vagrant_up(build: pathlib.Path, experimental: typing.Optional[str] = None) -
 
 def vagrant_run(build: pathlib.Path, command: str) -> None:
     subprocess.check_call(("vagrant", "ssh", "--", command), cwd=build)
+
+
+def vagrant_suspend(build: pathlib.Path) -> None:
+    if (
+        build.exists()
+        and subprocess.run(
+            ("vagrant", "status"), check=False, capture_output=True, cwd=build
+        ).returncode
+        == 0
+    ):
+        subprocess.call(("vagrant", "suspend"), cwd=build)
+
+
+def vagrant_resume(build: pathlib.Path) -> None:
+    if (
+        build.exists()
+        and subprocess.run(
+            ("vagrant", "status"), check=False, capture_output=True, cwd=build
+        ).returncode
+        == 0
+    ):
+        subprocess.call(("vagrant", "resume"), cwd=build)
+
+
+def vagrant_halt(build: pathlib.Path) -> None:
+    if (
+        build.exists()
+        and subprocess.run(
+            ("vagrant", "status"), check=False, capture_output=True, cwd=build
+        ).returncode
+        == 0
+    ):
+        subprocess.call(("vagrant", "halt"), cwd=build)
 
 
 def vagrant_destroy(build: pathlib.Path) -> None:

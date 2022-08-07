@@ -47,7 +47,6 @@ def os_build(
                             f"/Users/vagrant/.pyenv/versions/{python_version}/bin/python3",
                             "--release",
                             "--strip",
-                            "--no-sdist",
                             "--out",
                             "../new-wheels",
                         )

@@ -70,7 +70,6 @@ def os_build(
                                 "--strip",
                                 "--target",
                                 target,
-                                "--no-sdist",
                                 "--out",
                                 "..\\new-wheels",
                             )
