@@ -54,6 +54,7 @@ def os_provision(build: pathlib.Path):
                     '    config.vm.provider "virtualbox" do |v|',
                     '        v.name = "{}"'.format(common.box_name("linux")),
                     "        v.check_guest_additions = false",
+                    "        v.memory = 2048",
                     "    end",
                     "    config.ssh.insert_key = false",
                     "end",
