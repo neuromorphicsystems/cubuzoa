@@ -32,7 +32,7 @@ def os_provision(build: pathlib.Path):
                     "brew install rustup-init",
                     "rustup-init -y",
                     "source $HOME/.cargo/env",
-                    "rustup target add aarch64-apple-darwin",
+                    "rustup target add aarch64-apple-darwin x86_64-apple-darwin",
                     "brew install upx",
                     *(
                         "\n".join(
